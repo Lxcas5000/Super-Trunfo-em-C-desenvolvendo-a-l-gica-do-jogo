@@ -1,0 +1,138 @@
+#include <stdio.h>
+#include <string.h>
+
+// Estrutura para armazenar os dados da carta
+struct Carta {
+    char nomePais[50];
+    int populacao;
+    float area;
+    float pib;
+    int pontosTuristicos;
+    float densidadeDemografica;
+};
+
+// Função para calcular densidade demográfica
+float calcularDensidade(int populacao, float area) {
+    return populacao / area;
+}
+
+// Exibir carta
+void exibirCarta(struct Carta c) {
+    printf("\n=== %s ===\n", c.nomePais);
+    printf("População: %d\n", c.populacao);
+    printf("Área: %.2f km²\n", c.area);
+    printf("PIB: %.2f bilhões\n", c.pib);
+    printf("Pontos Turísticos: %d\n", c.pontosTuristicos);
+    printf("Densidade Demográfica: %.2f hab/km²\n", c.densidadeDemografica);
+}
+
+// Função para obter o valor de um atributo genérico
+float obterValorAtributo(struct Carta c, int atributo) {
+    switch (atributo) {
+        case 1: return c.populacao;
+        case 2: return c.area;
+        case 3: return c.pib;
+        case 4: return c.pontosTuristicos;
+        case 5: return c.densidadeDemografica;
+        default: return 0;
+    }
+}
+
+// Função para imprimir o nome do atributo
+const char* nomeDoAtributo(int atributo) {
+    switch (atributo) {
+        case 1: return "População";
+        case 2: return "Área";
+        case 3: return "PIB";
+        case 4: return "Pontos Turísticos";
+        case 5: return "Densidade Demográfica";
+        default: return "Desconhecido";
+    }
+}
+
+// Verifica se um atributo é invertido (menor vence)
+int atributoMenorVence(int atributo) {
+    return atributo == 5;
+}
+
+// Menu dinâmico para escolher atributo
+int escolherAtributo(int escolhido) {
+    int opcao;
+    printf("\nEscolha um atributo para comparar:\n");
+    if (escolhido != 1) printf("1 - População\n");
+    if (escolhido != 2) printf("2 - Área\n");
+    if (escolhido != 3) printf("3 - PIB\n");
+    if (escolhido != 4) printf("4 - Pontos Turísticos\n");
+    if (escolhido != 5) printf("5 - Densidade Demográfica\n");
+    printf("Digite a opção: ");
+    scanf("%d", &opcao);
+
+    // Verifica se a opção é válida e diferente da anterior
+    if (opcao < 1 || opcao > 5 || opcao == escolhido) {
+        printf("\nOpção inválida ou já escolhida. Tente novamente.\n");
+        return escolherAtributo(escolhido);
+    }
+    return opcao;
+}
+
+int main() {
+    // Cartas pré-definidas
+    struct Carta carta1 = {"Brasil", 213000000, 8515767.0, 1600.0, 45};
+    struct Carta carta2 = {"Argentina", 45600000, 2780400.0, 500.0, 30};
+
+    // Cálculo da densidade
+    carta1.densidadeDemografica = calcularDensidade(carta1.populacao, carta1.area);
+    carta2.densidadeDemografica = calcularDensidade(carta2.populacao, carta2.area);
+
+    // Exibe as cartas
+    printf("=== Super Trunfo: Cartas ===\n");
+    exibirCarta(carta1);
+    exibirCarta(carta2);
+
+    // Escolha dos atributos
+    int atributo1 = escolherAtributo(0);
+    int atributo2 = escolherAtributo(atributo1);
+
+    // Valores dos atributos
+    float valor1c1 = obterValorAtributo(carta1, atributo1);
+    float valor1c2 = obterValorAtributo(carta2, atributo1);
+    float valor2c1 = obterValorAtributo(carta1, atributo2);
+    float valor2c2 = obterValorAtributo(carta2, atributo2);
+
+    // Resultado individual dos atributos com operador ternário
+    printf("\n--- Comparação ---\n");
+    printf("Atributo 1: %s\n", nomeDoAtributo(atributo1));
+    printf("%s: %.2f\n", carta1.nomePais, valor1c1);
+    printf("%s: %.2f\n", carta2.nomePais, valor1c2);
+    printf("Resultado: %s venceu no atributo 1!\n",
+           (atributoMenorVence(atributo1) ?
+           (valor1c1 < valor1c2 ? carta1.nomePais : valor1c2 < valor1c1 ? carta2.nomePais : "Empate") :
+           (valor1c1 > valor1c2 ? carta1.nomePais : valor1c2 > valor1c1 ? carta2.nomePais : "Empate")));
+
+    printf("\nAtributo 2: %s\n", nomeDoAtributo(atributo2));
+    printf("%s: %.2f\n", carta1.nomePais, valor2c1);
+    printf("%s: %.2f\n", carta2.nomePais, valor2c2);
+    printf("Resultado: %s venceu no atributo 2!\n",
+           (atributoMenorVence(atributo2) ?
+           (valor2c1 < valor2c2 ? carta1.nomePais : valor2c2 < valor2c1 ? carta2.nomePais : "Empate") :
+           (valor2c1 > valor2c2 ? carta1.nomePais : valor2c2 > valor2c1 ? carta2.nomePais : "Empate")));
+
+    // Soma dos atributos para decidir o vencedor final
+    float soma1 = (atributoMenorVence(atributo1) ? -valor1c1 : valor1c1) +
+                  (atributoMenorVence(atributo2) ? -valor2c1 : valor2c1);
+    float soma2 = (atributoMenorVence(atributo1) ? -valor1c2 : valor1c2) +
+                  (atributoMenorVence(atributo2) ? -valor2c2 : valor2c2);
+
+    printf("\n--- Resultado Final ---\n");
+    printf("Soma dos atributos (%s): %.2f\n", carta1.nomePais, soma1);
+    printf("Soma dos atributos (%s): %.2f\n", carta2.nomePais, soma2);
+
+    if (soma1 > soma2)
+        printf("\nVencedor: %s!\n", carta1.nomePais);
+    else if (soma2 > soma1)
+        printf("\nVencedor: %s!\n", carta2.nomePais);
+    else
+        printf("\nResultado: Empate!\n");
+
+    return 0;
+}
